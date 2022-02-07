@@ -14,7 +14,7 @@ __all__ = ['stackplot']
 
 
 def stackplot(axes, x, *args,
-              labels=(), colors=None, baseline='zero',
+              labels=(), colors=None, baseline='zero', hide_empty=False,
               **kwargs):
     """
     Draw a stacked area plot.
@@ -107,9 +107,16 @@ def stackplot(axes, x, *args,
         first_line = center - 0.5 * total
         stack += first_line
 
+    edgecolor = kwargs.pop('edgecolor', None)
+    interpolate = kwargs.pop('interpolate', False)
+    where = kwargs.pop('where', None)
+
     # Color between x = 0 and the first array.
     color = axes._get_lines.get_next_color()
     coll = axes.fill_between(x, first_line, stack[0, :],
+                             where=(first_line != stack[0, :]) if hide_empty else where,
+                             interpolate=True if hide_empty else interpolate,
+                             edgecolor=color if hide_empty else edgecolor,
                              facecolor=color, label=next(labels, None),
                              **kwargs)
     coll.sticky_edges.y[:] = [0]
@@ -119,6 +126,9 @@ def stackplot(axes, x, *args,
     for i in range(len(y) - 1):
         color = axes._get_lines.get_next_color()
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
+                                   where=(stack[i, :] != stack[i + 1, :]) if hide_empty else where,
+                                   interpolate=True if hide_empty else interpolate,
+                                   edgecolor=color if hide_empty else edgecolor,
                                    facecolor=color, label=next(labels, None),
                                    **kwargs))
     return r
