@@ -41,6 +41,9 @@ def stackplot(axes, x, *args,
           size of each layer. It is also called 'Streamgraph'-layout. More
           details can be found at http://leebyron.com/streamgraph/.
 
+    hide_empty : bool, optional
+        If set, hides inputs where they have zero height
+
     labels : list of str, optional
         A sequence of labels to assign to each data series. If unspecified,
         then no labels will be applied to artists.
@@ -114,7 +117,8 @@ def stackplot(axes, x, *args,
     # Color between x = 0 and the first array.
     color = axes._get_lines.get_next_color()
     coll = axes.fill_between(x, first_line, stack[0, :],
-                             where=(first_line != stack[0, :]) if hide_empty else where,
+                             where=(first_line != stack[0, :])
+                                if hide_empty else where,
                              interpolate=True if hide_empty else interpolate,
                              edgecolor=color if hide_empty else edgecolor,
                              facecolor=color, label=next(labels, None),
@@ -126,9 +130,12 @@ def stackplot(axes, x, *args,
     for i in range(len(y) - 1):
         color = axes._get_lines.get_next_color()
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
-                                   where=(stack[i, :] != stack[i + 1, :]) if hide_empty else where,
-                                   interpolate=True if hide_empty else interpolate,
-                                   edgecolor=color if hide_empty else edgecolor,
+                                   where=(stack[i, :] != stack[i + 1, :])
+                                    if hide_empty else where,
+                                   interpolate=True
+                                    if hide_empty else interpolate,
+                                   edgecolor=color
+                                    if hide_empty else edgecolor,
                                    facecolor=color, label=next(labels, None),
                                    **kwargs))
     return r
